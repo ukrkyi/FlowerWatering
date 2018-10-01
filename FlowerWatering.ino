@@ -2,11 +2,13 @@
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include "token.h"
+#include <Ultrasonic.h>
 
 #define SSID "UCU-Guests"
 
 WiFiClientSecure client;
 UniversalTelegramBot bot(TOKEN, client);
+Ultrasonic us(4, 16);
 
 bool tryConnect() {
   WiFi.begin(SSID);
@@ -25,13 +27,18 @@ bool tryConnect() {
 
 #define HELP_MESSAGE  "\
 Supported commands:\n\n\
-/help - Get this help message"
+/help - Get this help message\n\
+/water - Get distance to water from ultrasonic sensor (in cm)"
 #define ERROR_MESSAGE "Sorry, I don't understand your query."
 
 bool parseMessage(String chat_id, String message)
 {
   if (message.equals("/help")) {
     bot.sendMessage(chat_id, HELP_MESSAGE);
+    return true;
+  } else if (message.equals("/water")) {
+    us.measure();
+    bot.sendMessage(chat_id, String(us.get_cm(), 1));
     return true;
   }
   return false;
