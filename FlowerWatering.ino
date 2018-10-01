@@ -10,7 +10,7 @@ UniversalTelegramBot bot(TOKEN, client);
 
 bool tryConnect() {
   WiFi.begin(SSID);
-  digitalWrite(5, HIGH);
+  digitalWrite(5, LOW);
   do {
     delay(500);
     digitalWrite(5, !digitalRead(5));
