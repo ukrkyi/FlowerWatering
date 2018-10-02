@@ -41,10 +41,19 @@ bool tryConnect() {
   return true;
 }
 
+float getFill() {
+  us.measure();
+  float dist = us.get_cm();
+  if (dist > 6)
+    return 0;
+  else
+    return (6 - dist) / 6 * 100; 
+}
+
 #define HELP_MESSAGE  "\
 Supported commands:\n\n\
 /help - Get this help message\n\
-/water - Get distance to water from ultrasonic sensor (in cm)"
+/water - Get water reservoir fill percentage"
 #define ERROR_MESSAGE "Sorry, I don't understand your query."
 
 bool parseMessage(String chat_id, String message)
@@ -53,8 +62,7 @@ bool parseMessage(String chat_id, String message)
     bot.sendMessage(chat_id, HELP_MESSAGE);
     return true;
   } else if (message.equals("/water")) {
-    us.measure();
-    bot.sendMessage(chat_id, String(us.get_cm(), 1));
+    bot.sendMessage(chat_id, String(getFill()));
     return true;
   }
   return false;
@@ -71,9 +79,9 @@ void loop() {
       return;
   }
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-  while(numNewMessages) {
-    for (int i=0; i<numNewMessages; i++) {
-      if (!parseMessage(bot.messages[i].chat_id, bot.messages[i].text)){
+  while (numNewMessages) {
+    for (int i = 0; i < numNewMessages; i++) {
+      if (!parseMessage(bot.messages[i].chat_id, bot.messages[i].text)) {
         bot.sendMessage(bot.messages[i].chat_id, ERROR_MESSAGE);
         bot.sendMessage(bot.messages[i].chat_id, HELP_MESSAGE);
       }
