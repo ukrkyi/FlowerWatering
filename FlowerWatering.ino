@@ -11,17 +11,33 @@ UniversalTelegramBot bot(TOKEN, client);
 Ultrasonic us(4, 16);
 
 bool tryConnect() {
+  Serial.begin(9600);
+  Serial.println("Trying to connect...");
   WiFi.begin(SSID);
-  digitalWrite(5, LOW);
-  do {
-    delay(500);
+  Serial.print("Waiting for network responce");
+  digitalWrite(5, HIGH);
+  while (WiFi.status() == WL_IDLE_STATUS ||
+         WiFi.status() == WL_DISCONNECTED) { /* Workaround bc library returns WL_DISCONNECTED instead of WL_IDLE_STATUS */
+    delay(100);
     digitalWrite(5, !digitalRead(5));
-  } while (WiFi.status() == WL_IDLE_STATUS);
+    Serial.print(".");
+  }
+  Serial.println();
   if (WiFi.status() != WL_CONNECTED) {
     digitalWrite(5, LOW);
+    Serial.print("Connection error: ");
+    switch (WiFi.status()) {
+      case WL_NO_SHIELD:      Serial.println("No shield");          break;
+      case WL_NO_SSID_AVAIL:  Serial.println("Network not found");  break;
+      case WL_CONNECT_FAILED: Serial.println("Connection failed");  break;
+      case WL_CONNECTION_LOST: Serial.println("Connection lost");    break;
+      case WL_DISCONNECTED:   Serial.println("Disconnected");       break;
+      default:                Serial.println("Unknown");            break;
+    }
     return false;
   }
   digitalWrite(5, HIGH);
+  Serial.println("Connected successfully");
   return true;
 }
 
